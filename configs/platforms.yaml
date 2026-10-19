@@ -1,0 +1,157 @@
+version: 2
+test_date: "2026-10-19"
+currency: CNY
+
+# Main leaderboard: 2 product routes + 1 API route.
+# Side experiments: Qwen image models (10 free images each), Qwen-MT-Image translation (100 free).
+routes:
+  jimeng:
+    name: "即梦"
+    type: manual
+    channel: "App/Web"
+    model_display: "以平台显示为准（如 Seedream 5.0）"
+    role: "主榜：社媒/中文海报"
+    enabled: true
+    quota: "每日免费积分；42 张预计 2-3 天"
+    params:
+      mode: text2image
+      aspect_ratio: per_prompt
+      resolution: highest_available
+      style: default
+      reference_image: false
+      prompt_enhancement: "default；若可关闭则记录状态"
+      manual_edit: false
+    collection:
+      folder: data/raw/jimeng
+      naming: "{prompt_id}_jimeng_r{repeat}.png"
+      failure_naming: "{prompt_id}_jimeng_r{repeat}_fail.txt"
+
+  kling:
+    name: "可灵"
+    type: manual
+    channel: "App/Web"
+    model_display: "以平台显示为准（Kling Image 3.0 / O1）"
+    role: "主榜：写实人像"
+    enabled: true
+    quota: "每日免费积分；42 张预计 5-6 天；额度不足可缩稳定性子集"
+    params:
+      mode: text2image
+      aspect_ratio: per_prompt
+      resolution: "1K/2K，highest_available"
+      style: default
+      reference_image: false
+      prompt_enhancement: "default；若可关闭则记录状态"
+      manual_edit: false
+    collection:
+      folder: data/raw/kling
+      naming: "{prompt_id}_kling_r{repeat}.png"
+      failure_naming: "{prompt_id}_kling_r{repeat}_fail.txt"
+
+  seedream:
+    name: "Seedream 4.0 API"
+    type: api
+    channel: "火山方舟 Ark"
+    model: "doubao-seedream-4-0-20260415"
+    role: "主榜：API 通路/自动化"
+    enabled: true
+    quota: "免费 200 张；本项目约 42 张"
+    params:
+      size: "2048x2048 (1:1) / 1728x2304 (3:4)"
+      response_format: "url"
+      watermark: false
+      sequential_image_generation: "disabled"
+      stream: false
+      optimize_prompt_options: {"mode": "fast"}
+    collection:
+      folder: data/raw/seedream
+      manifest: data/manifests/runs.csv
+
+  qwen_image_3_0:
+    name: "Qwen-Image-3.0"
+    type: api
+    channel: "DashScope OpenAI-compatible"
+    model: "qwen-image-3.0"
+    role: "侧实验：10 条 e-commerce/社媒/人像混合子集"
+    enabled: true
+    quota: "免费 10 张；严格 --max-images 10"
+    params:
+      size: "1024x1024 (1:1) / 1152x1536 (3:4)"
+      n: 1
+      prompt_extend: false
+      watermark: false
+    collection:
+      folder: data/raw/qwen-image-3.0
+      manifest: data/manifests/runs.csv
+
+  qwen_image_2_1_pro:
+    name: "Qwen-Image-2.1-Pro"
+    type: api
+    channel: "DashScope OpenAI-compatible"
+    model: "qwen-image-2.1-pro"
+    role: "侧实验：与 3.0 同 10 条 prompt 对照"
+    enabled: true
+    quota: "免费 10 张；严格 --max-images 10"
+    params:
+      size: "1024x1024 (1:1) / 1152x1536 (3:4)"
+      n: 1
+      prompt_extend: false
+      watermark: false
+    collection:
+      folder: data/raw/qwen-image-2.1-pro
+      manifest: data/manifests/runs.csv
+
+  qwen_mt_image:
+    name: "Qwen-MT-Image-2.0"
+    type: api
+    channel: "DashScope image2image"
+    model: "qwen-mt-image-2.0"
+    role: "侧实验：中文海报翻译成 EN/JA 的质检模块"
+    enabled: false
+    quota: "免费 100 张；建议 12 张海报 × 2 语言 = 24 张"
+    params:
+      source_lang: "zh"
+      target_lang: "en,ja"
+      config: {"imageSegment": false}
+    note: "这是图片翻译模型，不是文生图模型，不要混入生图主榜。"
+    collection:
+      folder: data/raw/qwen-mt
+      manifest: data/manifests/runs.csv
+
+  doubao:
+    name: "豆包"
+    type: manual
+    channel: "App"
+    model_display: "以平台显示为准"
+    role: "可选抽检 4 条"
+    enabled: false
+
+  liblib:
+    name: "LiblibAI / 海艺AI"
+    type: manual_or_api
+    role: "二期：SD/LoRA 可控性案例"
+    enabled: false
+
+  wenxin:
+    name: "文心一格"
+    type: manual
+    role: "备用，不进主榜"
+    enabled: false
+
+vlm_judge:
+  name: "DeepSeek Flash"
+  type: api
+  channel: "DeepSeek API"
+  model: "deepseek-flash"
+  params:
+    temperature: 0
+    image_detail: high
+    variants: ["A", "B"]
+    response_format: json
+
+annotation:
+  human_gold_coverage: 1.0
+  human_retest_coverage: 0.3
+  retest_delay_hours: 48
+  vlm_coverage: 1.0
+  min_alpha: 0.6
+  target_alpha: 0.67

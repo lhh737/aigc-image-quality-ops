@@ -1,0 +1,25 @@
+﻿prompt_id,platform,repeat,model_version,date,account_tier,aspect_ratio,resolution,latency_s,credits,success,moderation,prompt_enhancement,file,notes
+E01,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,1:1,2048x2048,,,true,,unknown,data\raw\jimeng\E01_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-2704-白色背景，一款磨砂黑色保温杯，杯身有银色竖向条纹，杯盖半开，旁边放两片柠檬，商业.png
+E02,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,1:1,2048x2048,,,true,,unknown,data\raw\jimeng\E02_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-2479-商业生活方式摄影，俯拍视角：浅木色纹理桌面上，一只白色陶瓷咖啡杯，杯身绘有蓝色手.png
+E03,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,1:1,2048x2048,,,true,,unknown,data\raw\jimeng\E03_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-1339-电商主图，商业产品摄影：一双白色厚底运动鞋，鞋带整齐系好，鞋侧有绿色抽象三叶形图.png
+E04,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,1:1,2048x2048,,,true,,unknown,data\raw\jimeng\E04_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-6871-护肤品商业产品摄影：两瓶透明玻璃精华瓶并排立于白色大理石台面上，一瓶配金色瓶盖，.png
+T01,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,3:4,1728x2304,,,true,,unknown,data\raw\jimeng\T01_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-1810-竖版极简风格咖啡店开业海报设计：米色背景，带极细腻的纸张肌理与柔和渐变，整体留白.png
+T02,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,3:4,1728x2304,,,true,,unknown,data\raw\jimeng\T02_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-1011-竖版国潮风格中秋节海报设计：深蓝色夜空背景，由深海军蓝到墨蓝的细腻渐变，点缀细微.png
+T03,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,3:4,1728x2304,,,true,,unknown,data\raw\jimeng\T03_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-9601-竖版电商促销海报设计：红色背景，采用正红到深红的细腻渐变并点缀细微的节日光斑与金.png
+T04,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,3:4,1728x2304,,,true,,unknown,data\raw\jimeng\T04_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-5013-竖版双语科技发布会海报设计：黑色背景，纯黑中带细腻的深蓝到黑渐变与细微星点粒子肌.png
+H01,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,3:4,1728x2304,,,true,,unknown,data\raw\jimeng\H01_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-3825-真实摄影，半身人像：一位年轻亚洲女性坐在咖啡馆窗边喝咖啡，双手捧着白色咖啡杯，姿.png
+H02,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,3:4,1728x2304,,,true,,unknown,data\raw\jimeng\H02_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-5950-真实摄影，近景特写：一位中年男性工匠在木工坊里打磨木勺，双手稳稳握着木勺，砂纸贴.png
+H03,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,3:4,1728x2304,,,true,,unknown,data\raw\jimeng\H03_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-9978-时尚杂志质感商业摄影：一位年轻男模站在纯白背景前，正面全身构图，穿米色长款风衣、.png
+H04,jimeng,1,即梦AI（版本未记录）,2026-10-19,free,3:4,1728x2304,,,true,,unknown,data\raw\jimeng\H04_jimeng_r1.png,auto-standardized; original=jimeng-2026-10-19-2715-纪实摄影：两位年轻女性在咖啡馆面对面坐着聊天，一人穿红色针织衫，一人穿白色衬衫，.png
+E01,kling,1,Kling 3.0,2026-10-19,free,1:1,2048x2048,,,true,,unknown,data\raw\kling\E01_kling_r1.png,auto-standardized; original=kling_20261019_作品_纯白色背景_一款磨砂_3867_0.png
+E02,kling,1,Kling 3.0,2026-10-19,free,1:1,2048x2048,,,true,,unknown,data\raw\kling\E02_kling_r1.png,auto-standardized; original=kling_20261019_作品_浅木色桌面_一只白色_3867_0.png
+E03,kling,1,Kling 3.0,2026-10-19,free,1:1,2048x2048,,,true,,unknown,data\raw\kling\E03_kling_r1.png,auto-standardized; original=kling_20261019_作品_电商主图_一双白色厚_3867_0.png
+E04,kling,1,Kling 3.0,2026-10-19,free,1:1,2048x2048,,,true,,unknown,data\raw\kling\E04_kling_r1.png,auto-standardized; original=kling_20261019_作品_护肤品套装商品图_两_3867_0.png
+T01,kling,1,Kling 3.0,2026-10-19,free,3:4,1760x2336,,,true,,unknown,data\raw\kling\T01_kling_r1.png,auto-standardized; original=kling_20261019_作品_极简风咖啡店开业海报_3852_0.png
+T02,kling,1,Kling 3.0,2026-10-19,free,3:4,1760x2336,,,true,,unknown,data\raw\kling\T02_kling_r1.png,auto-standardized; original=kling_20261019_作品_国潮风中秋节海报_深_3852_0.png
+T03,kling,1,Kling 3.0,2026-10-19,free,3:4,1760x2336,,,true,,unknown,data\raw\kling\T03_kling_r1.png,auto-standardized; original=kling_20261019_作品_电商促销海报_红色背_3852_0.png
+T04,kling,1,Kling 3.0,2026-10-19,free,3:4,1760x2336,,,true,,unknown,data\raw\kling\T04_kling_r1.png,auto-standardized; original=kling_20261019_作品_双语科技发布会海报__3852_0.png
+H01,kling,1,Kling 3.0,2026-10-19,free,3:4,1760x2336,,,true,,unknown,data\raw\kling\H01_kling_r1.png,auto-standardized; original=kling_20261019_作品_一位年轻亚洲女性坐在_3852_0.png
+H02,kling,1,Kling 3.0,2026-10-19,free,3:4,1760x2336,,,true,,unknown,data\raw\kling\H02_kling_r1.png,auto-standardized; original=kling_20261019_作品_一位中年男性工匠在木_3853_0.png
+H03,kling,1,Kling 3.0,2026-10-19,free,3:4,1760x2336,,,true,,unknown,data\raw\kling\H03_kling_r1.png,auto-standardized; original=kling_20261019_作品_一位年轻男模站在纯白_3853_0.png
+H04,kling,1,Kling 3.0,2026-10-19,free,3:4,1760x2336,,,true,,unknown,data\raw\kling\H04_kling_r1.png,auto-standardized; original=kling_20261019_作品_两位年轻女性在咖啡馆_3853_0.png

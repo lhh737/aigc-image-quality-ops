@@ -1,0 +1,39 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Internal working notes (kept local, not part of the public portfolio)
+PROJECT_PLAN.md
+TODO_USER.md
+TASK_NOW.md
+
+# Large or platform-restricted generated images
+data/raw/
+data/blinded/
+data/private/
+
+# Annotation CSVs: include the final pilot labels, ignore scratch exports
+data/annotations/*.csv
+!data/annotations/human_r1.csv
+!data/annotations/vlm_scores.csv
+
+# Generated annotation manifest points at private images
+tools/annotation/manifest.js
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Build outputs
+dashboard/output/
+report/build/

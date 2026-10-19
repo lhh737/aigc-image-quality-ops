@@ -1,0 +1,6 @@
+﻿platform,n,quality_mean,constraint_mean,note
+jimeng,12,4.496,0.986,VLM-only preview; not final; human labels pending
+kling,12,4.208,0.976,VLM-only preview; not final; human labels pending
+qwen-image-2.1-pro,10,4.502,0.977,VLM-only preview; not final; human labels pending
+qwen-image-3.0,10,4.352,0.957,VLM-only preview; not final; human labels pending
+seedream,12,4.423,0.978,VLM-only preview; not final; human labels pending

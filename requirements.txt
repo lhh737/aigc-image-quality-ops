@@ -1,0 +1,9 @@
+requests>=2.31
+python-dotenv>=1.0
+PyYAML>=6.0
+pandas>=2.0
+Pillow>=10.0
+numpy>=1.26
+scipy>=1.11
+krippendorff>=0.6
+openpyxl>=3.1
