@@ -1,7 +1,7 @@
 window.DASHBOARD_DATA = {
   "meta": {
     "project": "AIGC 多模态数据质量评估与运营复现",
-    "generated_at": "2026-10-19T17:52:47+08:00",
+    "generated_at": "2026-10-19T18:10:39+08:00",
     "n_human": 36,
     "n_vlm": 112,
     "platforms": [
@@ -277,8 +277,29 @@ window.DASHBOARD_DATA = {
     }
   },
   "human_retest": {
-    "available": false,
-    "reason": "缺少主标注或重测文件"
+    "available": true,
+    "n": 11,
+    "main_file": "human_r1.csv",
+    "retest_file": "human_r1_retest.csv",
+    "interval_hours": 1.71,
+    "by_dim": {
+      "g1": {
+        "exact": 0.818,
+        "adjacent": 0.909,
+        "mae": 0.273
+      },
+      "g2": {
+        "exact": 0.455,
+        "adjacent": 0.909,
+        "mae": 0.636
+      },
+      "g3": {
+        "exact": 0.545,
+        "adjacent": 1.0,
+        "mae": 0.455
+      }
+    },
+    "note": "重测间隔不足 48 小时，属于短期一致性，不等同于 48h test–retest。"
   },
   "badcases": [
     {

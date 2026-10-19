@@ -46,6 +46,7 @@ The pilot uses 12 prompts covering e-commerce, poster, and portrait scenes. Raw 
 - E-commerce: Jimeng 4.75; social/poster: Seedream 4.59; portrait: Kling 4.74.
 - The overall difference is not significant (Friedman p=0.75). These results are directional, not a definitive ranking.
 - Human–VLM Krippendorff's α is 0.14–0.20. The VLM is suitable for triage, not final acceptance.
+- 11-image short-interval retest (~1.7h): exact agreement is 81.8% (G1), 45.5% (G2), and 54.5% (G3); ±1 agreement is 90.9%–100%.
 
 ## Pipeline
 
@@ -156,7 +157,7 @@ Raw images are excluded because of platform terms, image copyright, and privacy.
 - 12-prompt pilot; the overall difference is not significant, so the conclusions are directional.
 - Product-level evaluation: closed platforms rewrite prompts and post-process images; this is not a bare-model benchmark.
 - Platform versions change; results correspond to the 2026-10-19 snapshot.
-- One human annotator; the 48-hour retest is not complete. Human–VLM α is low.
+- One human annotator; an 11-image short-interval retest (~1.7h) was completed, but a strict 48h retest is not done. Human–VLM α is low.
 - Repeated-generation stability has not been collected yet.
 
 See [docs/limitations.md](docs/limitations.md) for details.

@@ -18,6 +18,7 @@ data/private/
 data/annotations/*.csv
 !data/annotations/human_r1.csv
 !data/annotations/vlm_scores.csv
+!data/annotations/human_r1_retest.csv
 
 # Generated annotation manifests point at private images
 tools/annotation/manifest.js

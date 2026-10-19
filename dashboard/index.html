@@ -248,8 +248,14 @@
     }).join("");
     const retestRows = ["g1","g2","g3"].map(k => {
       const e = retest.by_dim?.[k] || {};
-      return `<tr><td>${k.toUpperCase()}</td><td>${pct(e.exact)}</td><td>${pct(e.adjacent)}</td></tr>`;
+      return `<tr><td>${k.toUpperCase()}</td><td>${pct(e.exact)}</td><td>${pct(e.adjacent)}</td><td>${fmt(e.mae, 2)}</td></tr>`;
     }).join("");
+    const retestNote = retest.available
+      ? `人工重测（n=${retest.n}，间隔 ${fmt(retest.interval_hours, 1)}h）${retest.interval_hours != null && retest.interval_hours < 48 ? " · 短期一致性，不是严格 48h" : ""}`
+      : "人工重测：尚未完成";
+    const retestTable = retest.available
+      ? `<table><thead><tr><th>维度</th><th>完全一致</th><th>±1</th><th>MAE</th></tr></thead><tbody>${retestRows}</tbody></table>`
+      : `<p class="muted" style="font-size:12px">尚未完成。</p>`;
     return `<div class="two">
       <div class="card">
         <h2>稳定性</h2><p class="section-note">重复生成下的波动与排名翻转。</p>
@@ -264,8 +270,8 @@
         <h2>Human–VLM 一致性</h2><p class="section-note">VLM 是第二评分通道，不是第二个人工标注者。</p>
         <table><thead><tr><th>维度</th><th>N</th><th>完全一致</th><th>±1</th><th>α</th></tr></thead><tbody>${agreementRows}</tbody></table>
         <p class="warn" style="font-size:12px;margin-top:8px">α<0.67：VLM 不宜替代人工最终判定，只适合初筛。</p>
-        <p class="section-note" style="margin-top:10px">人工重测（48h）</p>
-        <table><thead><tr><th>维度</th><th>完全一致</th><th>±1</th></tr></thead><tbody>${retestRows}</tbody></table>
+        <p class="section-note" style="margin-top:10px">${retestNote}</p>
+        ${retestTable}
       </div>
     </div>`;
   }
