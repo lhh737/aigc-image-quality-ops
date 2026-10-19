@@ -1,14 +1,14 @@
-# Limitations
+# 限制
 
-- **Small sample**: 12 prompts per route in the pilot. Friedman p=0.75; the overall ranking is directional, not statistically significant.
-- **Product-level evaluation**: closed platforms rewrite prompts, apply default styles, and post-process. Differences are not attributable to the bare model alone.
-- **Version drift**: platform versions change. Results are a snapshot from 2026-10-19; model IDs and dates are recorded in the manifests.
-- **Single human annotator**: no human–human IAA in the pilot. A 30% 48-hour retest is planned; until then, human reliability is not fully quantified.
-- **VLM calibration is weak**: Krippendorff's α 0.14–0.20. The VLM is a triage channel, not a replacement for human acceptance.
-- **No repeated generations**: the stability subset is planned but not complete. Rank stability under repeated generation is unknown.
-- **Manual latency/credits missing**: 即梦/可灵 are manual routes; latency and credit cost are not comparable to the Seedream API route.
-- **Scene imbalance**: the pilot has four prompts per category; some scene estimates rest on a small number of prompts.
-- **Watermark cropping**: blinded copies crop the bottom ~9.75% to remove platform watermarks. This slightly changes composition; originals are preserved privately.
-- **No raw images in the public repo**: platform ToS, copyright, and privacy. Prompts, labels, manifests, and aggregates are included so the method can be audited.
-- **Safety red-team not run in the pilot**: the six safety prompts are defined but not yet evaluated. No harmful images are published.
-- **Qwen side experiment is VLM-only**: Qwen-Image-3.0/2.1-Pro have 10 images each and no human gold labels; their results are a preview, not a main leaderboard.
+- **样本量**：pilot 每条通路 12 条 prompt。Friedman p=0.75，整体排名是方向性的，不能作为统计显著的结论。
+- **产品级评测**：闭源平台会改写提示词、套用默认风格、做后处理；差异不能全部归因于裸模型。
+- **版本漂移**：平台版本会变化。结果对应 2026-10-19 的版本，model ID 和测试日期记录在 manifest 中。
+- **单个人工标注者**：pilot 没有 human–human IAA；48 小时重测尚未完成，人工信度还没有完全量化。
+- **VLM 校准较弱**：Krippendorff's α 为 0.14–0.20。VLM 适合初筛，不适合作为最终验收。
+- **未做重复生成**：稳定性子集尚未采集，重复生成下的排名稳定性未知。
+- **手动通路缺少延迟/积分**：即梦、可灵为手动采集，延迟和积分与 Seedream API 不可直接比较。
+- **场景样本不均**：每个类别 4 条 prompt，部分场景判断依赖较少样本。
+- **水印裁剪**：盲化副本裁掉底部约 9.75% 去除平台水印，构图会有轻微变化；原图保留在本地。
+- **仓库不含原始图片**：平台条款、图片版权和隐私原因。prompt、标注、manifest 和聚合结果足以复核方法。
+- **安全红队未跑**：6 条安全 prompt 已定义，但 pilot 未执行；不发布任何有害图片。
+- **Qwen 侧实验仅 VLM 评分**：Qwen-Image-3.0/2.1-Pro 各 10 张，没有人工金标，结果只作为预览。

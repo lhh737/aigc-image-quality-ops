@@ -36,7 +36,12 @@ def load_human() -> pd.DataFrame:
         frames.append(df)
     raw = pd.concat(frames, ignore_index=True)
 
-    blind_map = pd.read_csv(config.BLIND_MAP_CSV, dtype=str, encoding="utf-8-sig").fillna("")
+    blind_map_path = config.BLIND_MAP_CSV
+    if not blind_map_path.exists():
+        blind_map_path = config.MANIFEST_DIR / "blind_map.csv"
+    if not blind_map_path.exists():
+        raise SystemExit("缺少 blind_map.csv，无法把 blind_id 映射回平台。")
+    blind_map = pd.read_csv(blind_map_path, dtype=str, encoding="utf-8-sig").fillna("")
     df = raw.merge(blind_map[["blind_id", "run_id", "platform", "model", "repeat"]], on="blind_id", how="left")
     for col in DIMS:
         df[col] = pd.to_numeric(df[col], errors="coerce")

@@ -1,249 +1,168 @@
+<div align="center">
+
 # AIGC Image Quality Ops
 
-> A business-oriented evaluation of AIGC image generation platforms: **即梦 / 可灵 / Seedream 4.0**.
-> 从评测集、判定规则、人工金标、VLM 校准到 Bad Case 归因的最小闭环。
+**AIGC 生图平台的质量评测与数据质检复现**
 
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/code-MIT-green.svg)](LICENSE)
-[![Data: CC BY-NC 4.0](https://img.shields.io/badge/data-CC%20BY--NC%204.0-lightgrey.svg)](NOTICE.md)
+即梦 / 可灵 / Seedream 4.0 · 原子约束 · 人工金标 · VLM 校准
 
-**Live dashboard**: <https://lhh737.github.io/aigc-image-quality-ops/>
+[![CI](https://github.com/lhh737/aigc-image-quality-ops/actions/workflows/ci.yml/badge.svg)](https://github.com/lhh737/aigc-image-quality-ops/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.12-blue?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![Data](https://img.shields.io/badge/data-CC%20BY--NC%204.0-lightgrey?style=flat-square)](NOTICE.md)
+[![Dashboard](https://img.shields.io/badge/dashboard-live-2a78d6?style=flat-square)](https://lhh737.github.io/aigc-image-quality-ops/dashboard/)
 
----
+[中文](README.md) | [English](README.en.md)
 
-## Why this project
-
-AIGC 评测岗位真正关心的不是“哪个模型跑分高”，而是：
-
-- 如何把“好看/能用”拆成可检查的**原子约束**和评分维度；
-- 如何做**双盲标注、抽检、仲裁、信度分析**；
-- 如何用 **VLM 做初筛**，同时知道它在哪些维度不可靠；
-- 如何从 Bad Case 反推**规则迭代和平台选型**。
-
-本项目以电商商品图、社媒海报、人像为业务场景，对三条生产通路做同提示词实测，产出一套可复现的评测流水线、静态看板和 1–2 页评测摘要。
+</div>
 
 ---
 
-## Key findings (pilot: 12 prompts × 3 routes)
+## 概述
 
-| 平台 | 综合质量 | 95% CI | 约束满足率 | 一次通过率 |
-|---|---:|---|---:|---:|
-| 即梦 | **4.51** | 4.38 – 4.65 | 97.2% | **91.7%** |
-| Seedream 4.0 | 4.29 | 4.03 – 4.54 | 95.7% | 75.0% |
-| 可灵 | 4.20 | 3.76 – 4.56 | **98.8%** | 66.7% |
+这个仓库记录一次 AIGC 生图平台的质量评测。pilot 用同一组提示词在即梦、可灵、Seedream 4.0 上生成图片，再做去水印盲化、人工标注、VLM 辅助评分和统计分析。
 
-- **没有全能赢家，只有场景赢家**：电商即梦 4.75、社媒/海报 Seedream 4.59、人像可灵 4.74。
-- 总榜即梦领先，但 **Friedman p=0.75**，12 条 prompt 下差异不显著；这是方向性 pilot，不是“即梦显著更好”的结论。
-- **约束满足 ≠ 商业可用**：可灵约束满足率最高（98.8%），综合质量却最低（4.20）。
-- **VLM 不能替代人工**：精确一致率 52.8%–77.8%，Krippendorff's α 仅 0.14–0.20；适合初筛，不适合最终判定。
+评测关注三件事：
 
-完整摘要：[`report/pilot_summary.md`](report/pilot_summary.md)
+- 提示词里的显式约束是否被满足；
+- 图片是否达到可交付的视觉和商业质量；
+- VLM 能在多大程度上用于初筛。
 
----
+pilot 使用 12 条提示词，覆盖商品、海报、人像三个场景。原始生成图不在仓库中；仓库保留提示词、标注、分析结果和复现脚本。
 
-## Method
+- 在线看板：<https://lhh737.github.io/aigc-image-quality-ops/dashboard/>
+- 结果摘要：[docs/results.md](docs/results.md)
 
-### 1. Evaluation set
+## 结果
 
-- 30 prompts：24 主集 + 6 安全红队（pilot 使用其中 12 条主集）。
-- 6 类能力：商品、海报、人像、空间/数量、风格、组图一致性。
-- 每条 prompt 5–8 个**可判定的原子约束**，例如“左边三个红苹果”“中文标签‘晨光’”“无品牌标志”。
-- 难度分层：easy / medium / hard；prompt 集在生成前冻结。
+![Pilot results](docs/assets/results.png)
 
-### 2. Rubric
+| 平台 | N | 综合质量 | 95% CI | 一次通过率 |
+|---|---:|---:|---|---:|
+| 即梦 | 12 | 4.51 | 4.38 – 4.65 | 91.7% |
+| Seedream 4.0 | 12 | 4.29 | 4.03 – 4.54 | 75.0% |
+| 可灵 | 12 | 4.20 | 3.76 – 4.56 | 66.7% |
 
-| 层级 | 维度 | 评分 |
-|---|---|---|
-| 全局 | G1 指令遵循 | 1–5 |
-| 全局 | G2 视觉质量 | 1–5 |
-| 全局 | G3 商业可用性 | 1–5 |
-| 模块 | M1 文字准确率 | 0–100% |
-| 模块 | M2 一致性 | 1–5 |
-| 模块 | M3 安全合规 | pass/fail/na |
-| 客观 | 原子约束 | 每条 0/1 |
+- 电商商品图：即梦 4.75；社媒/海报：Seedream 4.59；人像：可灵 4.74。
+- 三平台总体差异不显著（Friedman p=0.75），以上结果用于 pilot 阶段的方向判断。
+- 人工与 VLM 的 Krippendorff's α 为 0.14–0.20；VLM 目前适合初筛，不作为最终判定依据。
 
-综合质量 = `0.35×G1 + 0.30×G2 + 0.35×G3`。
-一次通过 = `G2≥4` 且 `G3≥4` 且 `约束满足率≥80%`。
-
-### 3. Annotation
-
-- 人工金标：36 张，100% 覆盖。
-- 盲化：随机 ID、去 EXIF、裁掉底部平台水印。
-- VLM 第二通道：DeepSeek Flash，双 prompt 变体（约束优先 / 整体优先）。
-- 信度：Human–VLM 精确/±1 一致率、Krippendorff's α；人工 48h 重测（待完成）。
-- 统计：按 prompt 聚类 bootstrap 95% CI、Friedman、Wilcoxon + Holm。
-
-### 4. Bad Case
-
-- 失败标签 + 原子约束未满足 + 最低分样本三条线。
-- 归因到：指令遗漏、属性错误、空间错误、文字乱码、手部畸形、风格漂移、过度美化、安全违规。
-
----
-
-## Results
-
-### 场景差异
-
-| 场景 | 即梦 | 可灵 | Seedream | 建议 |
-|---|---:|---:|---:|---|
-| 电商商品图 | **4.75** | 3.50 | 4.35 | 即梦优先 |
-| 社媒/海报 | 4.28 | 4.35 | **4.59** | Seedream 优先 |
-| 人像 | 4.50 | **4.74** | 3.93 | 可灵优先 |
-
-按电商 40% / 社媒 35% / 人像 25% 加权：即梦 4.52 > Seedream 4.33 > 可灵 4.11。
-
-### Human–VLM calibration
-
-| 维度 | 完全一致 | ±1 | α |
-|---|---:|---:|---:|
-| G1 指令遵循 | 77.8% | 97.2% | 0.14 |
-| G2 视觉质量 | 58.3% | 94.4% | 0.20 |
-| G3 商业可用性 | 52.8% | 97.2% | 0.18 |
-
-α 偏低说明 VLM 的排序信息不足，不能替代人工最终判定；±1 高一致率容易高估自动评测能力。
-
-### 主要 Bad Case
-
-| 平台 | Prompt | 质量 | 问题 |
-|---|---|---:|---|
-| 可灵 | E03 运动鞋 | 2.65 | 视觉质量/商业可用性低，但约束全满足 |
-| 可灵 | E01 保温杯 | 3.00 | 商品图质感不足 |
-| Seedream | H02 工匠 | 3.35 | 人像/手部/质感弱 |
-| Seedream | H04 两位女性 | 3.65 | 缺两杯拿铁、缺拉花 |
-| 可灵 | T04 科技海报 | 3.70 | 海报文字/整体质感弱 |
-
----
-
-## Repo structure
+## 评测流程
 
 ```text
-.
-├─ README.md
-├─ NOTICE.md
-├─ LICENSE
-├─ requirements.txt
-├─ prompts/
-│  ├─ prompts_v1.csv            # 30 prompts + atomic constraints
-│  └─ pilot_12.txt              # pilot copy-paste list
-├─ configs/platforms.yaml       # routes, models, params, quotas
-├─ src/
-│  ├─ providers/                # manual ingest, Seedream, Qwen, standardization
-│  ├─ pipeline/                 # validate, blind, vlm_judge, analyze, dashboard
-│  └─ quota.py                  # hard free-tier quota guard
-├─ tools/annotation/index.html  # local annotation tool
-├─ dashboard/
-│  ├─ index.html                # static dashboard
-│  └─ data.js                   # generated dashboard data
-├─ data/
-│  ├─ manifests/                # runs, manual metadata, rename map
-│  ├─ annotations/              # human_r1.csv + vlm_scores.csv
-│  └─ analysis/                 # summary.json + CSV exports
-├─ report/pilot_summary.md      # 1–2 page pilot report
-└─ docs/
-   ├─ methodology.md
-   ├─ rubric.md
-   ├─ annotation_sop.md
-   ├─ project_plan.md
-   ├─ video_extension.md
-   ├─ interview_qa.md
-   └─ limitations.md
+Prompt + 原子约束
+        │
+        ▼
+即梦 / 可灵 / Seedream 4.0
+        │
+        ▼
+去水印 · 盲化 · 随机顺序
+        │
+        ▼
+人工金标 + VLM 双变体
+        │
+        ▼
+Bootstrap · Friedman · α · Bad Case
+        │
+        ▼
+静态看板 + 评测摘要
 ```
 
-**Not included**: raw generated images (`data/raw/`), blinded images (`data/blinded/`), private mappings and VLM cache (`data/private/`). See [Data availability](#data-availability).
+## 方法
 
----
+| 部分 | 做法 |
+|---|---|
+| 评测集 | 30 条 prompt（pilot 12 条），每条 5–8 个原子约束 |
+| 评分 | G1 指令遵循、G2 视觉质量、G3 商业可用性；文字、一致性、安全按需启用 |
+| 标注 | 人工金标 36 张；去水印盲化；VLM 使用 DeepSeek Flash，双 prompt 变体 |
+| 统计 | 按 prompt 聚类 bootstrap、Friedman、Wilcoxon–Holm、Krippendorff's α |
+| Bad Case | 失败标签、未满足的原子约束、低分样本三条线 |
 
-## Reproduce
+细节见 [methodology](docs/methodology.md)、[rubric](docs/rubric.md)、[annotation SOP](docs/annotation_sop.md)。
 
-### 1. Install
+## 快速开始
+
+### 查看结果
+
+仓库已包含分析所需的数据，不需要重新生成图片：
 
 ```bash
 git clone https://github.com/lhh737/aigc-image-quality-ops.git
 cd aigc-image-quality-ops
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-# macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-```
 
-### 2. Configure
-
-```dotenv
-DASHSCOPE_API_KEY=...
-ARK_API_KEY=...
-ARK_SEEDREAM_MODEL=doubao-seedream-4-0-20260415
-DEEPSEEK_API_KEY=...
-DEEPSEEK_MODEL=deepseek-flash
-```
-
-### 3. Run the pipeline
-
-```bash
-# manual images standardized
-python -m src.providers.standardize_manual --platforms jimeng,kling --apply
-
-# ingest + validate
-python -m src.providers.manual_ingest --platforms jimeng,kling --stage pilot
-python -m src.pipeline.validate --stage pilot
-
-# blind + annotation manifest
-python -m src.pipeline.blind --stage pilot --crop-bottom-pct 0.05
-
-# open tools/annotation/index.html, export human_r1.csv
-
-# VLM judge
-python -m src.pipeline.vlm_judge --stage pilot --variant both
-
-# analysis + dashboard
 python -m src.pipeline.analyze --stage pilot --bootstrap 1000
 python -m src.pipeline.build_dashboard
 ```
 
-Open `dashboard/index.html`. For a local server:
+打开 `dashboard/index.html`，或使用在线看板。
+
+### 完整复现
+
+完整流程需要按 `prompts/prompts_v1.csv` 在平台生成图片，并在 `.env` 中配置 API Key：
 
 ```bash
-python -m http.server 8000
-# http://localhost:8000/dashboard/
+cp .env.example .env
+# 填写 DASHSCOPE_API_KEY / ARK_API_KEY / DEEPSEEK_API_KEY
+
+python -m src.providers.standardize_manual --platforms jimeng,kling --apply
+python -m src.providers.manual_ingest --platforms jimeng,kling --stage pilot
+python -m src.pipeline.validate --stage pilot
+python -m src.pipeline.blind --stage pilot --crop-bottom-pct 0.05
+python -m src.pipeline.vlm_judge --stage pilot --variant both
+python -m src.pipeline.analyze --stage pilot --bootstrap 1000
+python -m src.pipeline.build_dashboard
 ```
 
----
+标注工具见 [tools/annotation/README.md](tools/annotation/README.md)。
 
-## Data availability
+## 项目结构
 
-- **Included**: prompts, rubric, manifests, human annotations, VLM scores, analysis outputs, dashboard data, report, code.
-- **Excluded**: raw generated images, blinded images, private blind mapping, API keys, VLM cache.
-- Why: platform Terms of Service, image copyright, and privacy. The evaluation data is sufficient to audit the method; raw images can be regenerated from the prompts and platform versions recorded in `data/manifests/runs.csv`.
-- Generated images remain subject to the respective platform terms. This project is a **non-commercial evaluation**.
+| 路径 | 内容 |
+|---|---|
+| `prompts/` | 30 条 prompt、原子约束、pilot 清单 |
+| `configs/` | 平台、模型、参数与采集方式 |
+| `src/providers/` | 手动入库、Seedream/Qwen 适配器、文件标准化 |
+| `src/pipeline/` | 校验、盲化、VLM 评分、分析、看板 |
+| `tools/annotation/` | 本地静态标注工具 |
+| `dashboard/` | 静态看板与生成结果 |
+| `data/` | manifest、人工标注、VLM 评分、分析输出 |
+| `docs/` | 方法、评分规则、标注 SOP、结果、限制、视频延伸 |
 
----
+## 文档
 
-## Limitations
+| 文档 | 内容 |
+|---|---|
+| [docs/methodology.md](docs/methodology.md) | 评测设计与统计口径 |
+| [docs/rubric.md](docs/rubric.md) | 评分维度与锚点 |
+| [docs/annotation_sop.md](docs/annotation_sop.md) | 标注流程与重测 |
+| [docs/results.md](docs/results.md) | pilot 结果与 Bad Case |
+| [docs/limitations.md](docs/limitations.md) | 限制与适用范围 |
+| [docs/video_extension.md](docs/video_extension.md) | 视频质检延伸设计 |
 
-- 12-prompt pilot; no statistically significant overall difference; conclusions are directional.
-- Product-level evaluation: closed platforms rewrite prompts and apply post-processing; this is not a bare-model benchmark.
-- Platform versions drift; results are a snapshot (2026-10-19).
-- VLM calibration is weak (α 0.14–0.20); human gold remains the primary channel.
-- 48h human retest and repeated-generation stability are not yet complete.
-- Manual routes (即梦/可灵) do not expose latency/credits in the same way as the API route.
+## 数据说明
 
----
+**包含**：prompt、manifest、盲化映射、人工标注、VLM 评分、分析结果、看板数据。
 
-## Roadmap
+**不包含**：原始生成图、盲化图、API Key、VLM 缓存。
 
-- [ ] 48h human retest (11 images) for intra-rater reliability.
-- [ ] 24 main prompts + 6 stability prompts × 3 + 6 safety prompts.
-- [ ] Qwen-MT-Image translation QC side module (100 free images).
-- [ ] Video QC extension: first-frame fidelity, temporal consistency, flicker, text stability.
-- [ ] 6–8 page full report.
+原始图不公开的原因是平台条款、图片版权和隐私。prompt、标注和 manifest 足以复核评测方法；复现图片需要按记录的模型版本重新生成。
 
----
+`data/manifests/blind_map.csv` 仅用于把 `blind_id` 映射回平台和 run，便于运行分析；盲化图本身不在仓库中。
+
+## 限制
+
+- 12 条 prompt 的 pilot，整体差异不显著，结论是方向性的。
+- 产品级评测，闭源平台会改写提示词并做后处理，不等同于裸模型对比。
+- 平台版本会变化，结果对应 2026-10-19 的版本。
+- 目前只有一名人工标注者，48 小时重测尚未完成；VLM 与人工的 α 较低。
+- 重复生成稳定性子集尚未采集。
+
+完整说明见 [docs/limitations.md](docs/limitations.md)。
 
 ## License
 
-- Code: [MIT](LICENSE).
-- Evaluation data and report: [CC BY-NC 4.0](NOTICE.md).
+- 代码：[MIT](LICENSE)
+- 评测数据与报告：[CC BY-NC 4.0](NOTICE.md)
 
-## Contact
-
-GitHub: [@lhh737](https://github.com/lhh737)
+平台名称与生成图片归各自平台所有；本项目为非商业评测。详见 [NOTICE.md](NOTICE.md)。

@@ -1,0 +1,37 @@
+﻿blind_id,run_id,prompt_id,platform,model,repeat,source_image,blind_image
+B53E47A1B47,E01_jimeng_r1,E01,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\E01_jimeng_r1.png,data\blinded\B53E47A1B47.png
+B88088E8B9F,E01_kling_r1,E01,kling,Kling 3.0,1,data\raw\kling\E01_kling_r1.png,data\blinded\B88088E8B9F.png
+BA923E7CE44,E01_seedream_r1,E01,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\E01_seedream_r1.png,data\blinded\BA923E7CE44.png
+B0F82928141,E02_jimeng_r1,E02,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\E02_jimeng_r1.png,data\blinded\B0F82928141.png
+BC02A0BD3EC,E02_kling_r1,E02,kling,Kling 3.0,1,data\raw\kling\E02_kling_r1.png,data\blinded\BC02A0BD3EC.png
+BA1BBFE2605,E02_seedream_r1,E02,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\E02_seedream_r1.png,data\blinded\BA1BBFE2605.png
+B51E6AB2DCB,E03_jimeng_r1,E03,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\E03_jimeng_r1.png,data\blinded\B51E6AB2DCB.png
+B7FC8BD543A,E03_kling_r1,E03,kling,Kling 3.0,1,data\raw\kling\E03_kling_r1.png,data\blinded\B7FC8BD543A.png
+BD408F478D3,E03_seedream_r1,E03,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\E03_seedream_r1.png,data\blinded\BD408F478D3.png
+B1E11093BF5,E04_jimeng_r1,E04,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\E04_jimeng_r1.png,data\blinded\B1E11093BF5.png
+BB1CEB3224C,E04_kling_r1,E04,kling,Kling 3.0,1,data\raw\kling\E04_kling_r1.png,data\blinded\BB1CEB3224C.png
+B36797C5BF1,E04_seedream_r1,E04,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\E04_seedream_r1.png,data\blinded\B36797C5BF1.png
+B6C0529EAC3,H01_jimeng_r1,H01,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\H01_jimeng_r1.png,data\blinded\B6C0529EAC3.png
+BD3118E854E,H01_kling_r1,H01,kling,Kling 3.0,1,data\raw\kling\H01_kling_r1.png,data\blinded\BD3118E854E.png
+B12078842D9,H01_seedream_r1,H01,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\H01_seedream_r1.png,data\blinded\B12078842D9.png
+B3C91343FC9,H02_jimeng_r1,H02,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\H02_jimeng_r1.png,data\blinded\B3C91343FC9.png
+B3389111491,H02_kling_r1,H02,kling,Kling 3.0,1,data\raw\kling\H02_kling_r1.png,data\blinded\B3389111491.png
+BB79CB32230,H02_seedream_r1,H02,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\H02_seedream_r1.png,data\blinded\BB79CB32230.png
+B9A5DFC0471,H03_jimeng_r1,H03,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\H03_jimeng_r1.png,data\blinded\B9A5DFC0471.png
+BE8EC8AA5A4,H03_kling_r1,H03,kling,Kling 3.0,1,data\raw\kling\H03_kling_r1.png,data\blinded\BE8EC8AA5A4.png
+BC4A4478729,H03_seedream_r1,H03,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\H03_seedream_r1.png,data\blinded\BC4A4478729.png
+BD93BFEC13D,H04_jimeng_r1,H04,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\H04_jimeng_r1.png,data\blinded\BD93BFEC13D.png
+BDB45DCE982,H04_kling_r1,H04,kling,Kling 3.0,1,data\raw\kling\H04_kling_r1.png,data\blinded\BDB45DCE982.png
+BCEC66CD323,H04_seedream_r1,H04,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\H04_seedream_r1.png,data\blinded\BCEC66CD323.png
+BAB48E20A96,T01_jimeng_r1,T01,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\T01_jimeng_r1.png,data\blinded\BAB48E20A96.png
+BE30633D628,T01_kling_r1,T01,kling,Kling 3.0,1,data\raw\kling\T01_kling_r1.png,data\blinded\BE30633D628.png
+B2278DF7161,T01_seedream_r1,T01,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\T01_seedream_r1.png,data\blinded\B2278DF7161.png
+BFC2BB10208,T02_jimeng_r1,T02,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\T02_jimeng_r1.png,data\blinded\BFC2BB10208.png
+BED39C8196C,T02_kling_r1,T02,kling,Kling 3.0,1,data\raw\kling\T02_kling_r1.png,data\blinded\BED39C8196C.png
+B9C6C8A3CC4,T02_seedream_r1,T02,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\T02_seedream_r1.png,data\blinded\B9C6C8A3CC4.png
+B7A726ADE0A,T03_jimeng_r1,T03,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\T03_jimeng_r1.png,data\blinded\B7A726ADE0A.png
+BE0AB4F2A6A,T03_kling_r1,T03,kling,Kling 3.0,1,data\raw\kling\T03_kling_r1.png,data\blinded\BE0AB4F2A6A.png
+B09E34EEB1F,T03_seedream_r1,T03,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\T03_seedream_r1.png,data\blinded\B09E34EEB1F.png
+B63314E249A,T04_jimeng_r1,T04,jimeng,即梦AI（版本未记录）,1,data\raw\jimeng\T04_jimeng_r1.png,data\blinded\B63314E249A.png
+BA2E4CED012,T04_kling_r1,T04,kling,Kling 3.0,1,data\raw\kling\T04_kling_r1.png,data\blinded\BA2E4CED012.png
+B4CBFC913DD,T04_seedream_r1,T04,seedream,doubao-seedream-4-0-20260415,1,data\raw\seedream\T04_seedream_r1.png,data\blinded\B4CBFC913DD.png

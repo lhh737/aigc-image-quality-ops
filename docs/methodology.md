@@ -1,160 +1,158 @@
-# Methodology
+# 评测方法
 
-## 1. Research questions
+## 1. 研究问题
 
-1. **RQ1 — Platform differences**: Under identical prompts, how do 即梦, 可灵, and Seedream 4.0 differ on instruction following, visual quality, and commercial usability?
-2. **RQ2 — Scene fit**: Is there a universal winner, or does the best platform depend on the business scene (e-commerce, social/poster, portrait)?
-3. **RQ3 — Robustness**: How stable is the ranking under repeated generation? Is the between-platform difference larger than within-platform variance?
-4. **RQ4 — Automation**: Can a VLM replace human judgment for first-pass QC? On which dimensions does it fail?
+1. **平台差异**：同一组 prompt 下，即梦、可灵、Seedream 4.0 在指令遵循、视觉质量、商业可用性上有什么差异？
+2. **场景适配**：是否存在通用最优平台，还是不同业务场景各有优势？
+3. **结果稳健性**：重复生成时排名是否稳定？平台间差异是否大于平台内波动？
+4. **自动化边界**：VLM 能否用于首轮质检？在哪些维度上不可靠？
 
-The pilot answers RQ1, RQ2, and RQ4 directionally. RQ3 needs the repeated-generation subset.
+pilot 对前三个问题给出方向性结果；稳健性需要重复生成子集。
 
-## 2. Scope and unit of analysis
+## 2. 评测对象
 
-The unit is a **production route**, not a bare model:
+评测单位是**生产通路**，不是裸模型：
 
-| Route | Type | What it represents |
+| 通路 | 类型 | 代表什么 |
 |---|---|---|
-| 即梦 App/Web | Product | What a content operator gets from the consumer product |
-| 可灵 App/Web | Product | What a content operator gets from the consumer product |
-| Seedream 4.0 API | API | What a team gets from an automated API pipeline |
+| 即梦 App/Web | 产品 | 内容运营直接使用消费级产品的产出 |
+| 可灵 App/Web | 产品 | 内容运营直接使用消费级产品的产出 |
+| Seedream 4.0 API | API | 团队通过自动化接口获得的产出 |
 
-This distinction matters: closed products may rewrite prompts, apply default styles, and post-process images. The project therefore measures **product-level delivery quality**, not a controlled model benchmark.
+闭源产品会改写提示词、套用默认风格、做后处理，因此这里衡量的是**产品交付质量**，不是受控的模型能力对比。
 
-### Fixed generation settings
+### 固定生成参数
 
-- Same prompt text across routes.
-- Same aspect ratio per prompt: `1:1` for product/spatial prompts, `3:4` for poster/portrait prompts.
-- Highest available resolution.
-- Default style; no reference image; no manual editing; no cherry-picking.
-- One generation per prompt in the pilot; repeat generations are reserved for the stability subset.
+- 三条通路使用同一段 prompt。
+- 每条 prompt 使用同一比例：商品/空间类 `1:1`，海报/人像类 `3:4`。
+- 使用平台可用的最高分辨率。
+- 默认风格；不传参考图；不手工修图；不挑图。
+- pilot 每条 prompt 生成 1 次；重复生成留给稳定性子集。
 
-## 3. Prompt set
+## 3. Prompt 设计
 
-- 30 prompts: 24 main + 6 safety red-team.
-- Pilot uses 12 main prompts: `E01–E04`, `T01–T04`, `H01–H04`.
-- Six capability categories:
+- 30 条 prompt：24 条主集 + 6 条安全红队。
+- pilot 使用 12 条主集：`E01–E04`、`T01–T04`、`H01–H04`。
+- 六类能力：
 
-| Code | Category | Business scene | Example constraint |
+| 代码 | 类别 | 业务场景 | 约束示例 |
 |---|---|---|---|
-| E | 商品/电商 | E-commerce | “两片柠檬”, “无品牌标志” |
-| T | 中文文字/海报 | Social/poster | “今日开业”, “2026.11.08” |
-| H | 人像/模特 | Portrait | “浅色毛衣”, “手部自然” |
-| Q | 数量/空间 | Cross-scene | “左边三个红苹果” |
-| Y | 风格/品牌 | Social/brand | “水墨与工笔结合” |
-| C | 一致性/组图 | Cross-scene | “同一只橘猫，毛色一致” |
+| E | 商品/电商 | 电商 | “两片柠檬”“无品牌标志” |
+| T | 中文文字/海报 | 社媒/海报 | “今日开业”“2026.11.08” |
+| H | 人像/模特 | 人像 | “浅色毛衣”“手部自然” |
+| Q | 数量/空间 | 跨场景 | “左边三个红苹果” |
+| Y | 风格/品牌 | 社媒/品牌 | “水墨与工笔结合” |
+| C | 一致性/组图 | 跨场景 | “同一只橘猫，毛色一致” |
 
-Each prompt has 5–8 **atomic, checkable constraints**. The prompt set and rubric are frozen before generation to avoid post-hoc selection.
+每条 prompt 有 5–8 个可检查的原子约束。prompt 集和评分规则在生成前固定，避免事后挑选。
 
-## 4. Rubric
+## 4. 评分
 
-### Global dimensions (all images)
+### 全局维度
 
-| Dimension | 1 | 3 | 5 |
+| 维度 | 1 分 | 3 分 | 5 分 |
 |---|---|---|---|
 | G1 指令遵循 | 完全跑偏 | 部分约束缺失 | 全部约束满足 |
 | G2 视觉质量 | 明显畸形/伪影 | 可用但需修 | 无明显瑕疵 |
 | G3 商业可用性 | 不可用 | 需明显返工 | 可直接交付 |
 
-### Module dimensions (conditional)
+### 模块维度
 
-| Dimension | When enabled | Scale |
+| 维度 | 启用条件 | 量表 |
 |---|---|---|
-| M1 文字准确率 | Text/poster prompts | 0–100% |
-| M2 一致性 | Group/multi-panel prompts | 1–5 |
-| M3 安全合规 | Safety red-team prompts | pass / fail / na |
+| M1 文字准确率 | 文字/海报类 | 0–100% |
+| M2 一致性 | 组图/多格类 | 1–5 |
+| M3 安全合规 | 安全红队 | pass / fail / na |
 
-### Composite metrics
+### 汇总指标
 
 ```text
 quality = 0.35 × G1 + 0.30 × G2 + 0.35 × G3
-first_pass = (G2 ≥ 4) AND (G3 ≥ 4) AND (constraint_pass_rate ≥ 0.80)
-constraint_pass_rate = satisfied_atomic_constraints / total_atomic_constraints
+first_pass = G2 ≥ 4 且 G3 ≥ 4 且 constraint_pass_rate ≥ 0.80
+constraint_pass_rate = 满足的原子约束数 / 原子约束总数
 ```
 
-Atomic constraints are scored **before** holistic dimensions. This separates objective instruction following from subjective visual judgment.
+先打原子约束，再打整体分。这样可以把“是否按要求执行”和“画面是否好看/可用”分开。
 
-## 5. Annotation protocol
+## 5. 标注
 
-- Human gold labels: 100% of pilot images.
-- Blind: random IDs, EXIF stripped, platform watermarks cropped from blinded copies.
-- VLM channel: DeepSeek Flash, two prompt variants (constraints-first and holistic-first).
-- Human retest: 30% of images after 48 hours (planned).
-- Adjudication: disagreements of ≥2 points or constraint disagreements go to a second pass.
+- 人工金标覆盖 pilot 全部图片。
+- 盲化：随机 ID、去 EXIF、裁掉底部平台水印。
+- VLM 第二通道：DeepSeek Flash，两个 prompt 变体（约束优先 / 整体优先）。
+- 人工重测：48 小时后重标 30%（计划中）。
+- 仲裁：G1–G3 分差 ≥2 或原子约束判断不一致时，进入第二轮。
 
-### Reliability
+### 信度
 
-- Human–VLM: exact agreement, adjacent agreement (±1), mean absolute error, Krippendorff's α (ordinal).
-- Human–human: intra-rater retest (planned).
-- Report α alongside percent agreement; high ±1 agreement can coexist with low α when scores are concentrated in a narrow range.
+- Human–VLM：完全一致率、±1 相邻一致率、平均绝对误差、Krippendorff's α（ordinal）。
+- Human–human：人工重测（计划中）。
+- 同时报告 α 和一致率；当分数集中在较窄区间时，±1 一致率可能很高，但 α 仍偏低。
 
-## 6. Statistical analysis
+## 6. 统计
 
-### Cluster bootstrap
+### 聚类 bootstrap
 
-Images within the same prompt are correlated. We resample **prompts**, not images:
+同一 prompt 下的图片相关，因此重采样 **prompt**，不重采样单张图片：
 
 ```text
 for b in 1..B:
-    sample prompts with replacement
-    compute mean quality over all images of sampled prompts
-report 2.5th and 97.5th percentiles
+    有放回地抽取 prompt
+    对抽中的 prompt 计算所有图片的均值
+取 2.5% 和 97.5% 分位
 ```
 
-### Omnibus and post-hoc tests
+### 整体检验与事后比较
 
-- Friedman test across the three routes (one mean per prompt per route).
-- Wilcoxon signed-rank for pairwise comparisons.
-- Holm correction for multiple comparisons.
-- Effect size: median difference; report with p-values.
+- Friedman 检验：三条通路的综合质量。
+- Wilcoxon signed-rank：两两比较。
+- Holm 校正：多重比较。
+- 报告 p 值和中位数差异。
 
-### Stability
+### 稳定性
 
-For the stability subset:
+- 同一平台重复生成的标准差。
+- 排名翻转率：重复生成时第一名发生变化的 prompt 占比。
+- 比较平台内波动与平台间差异。
 
-- Within-platform standard deviation across repeats.
-- Rank flip rate: share of prompts where the top platform changes across repeats.
-- Compare within-platform variance to between-platform differences.
+### 胜率
 
-### Win rate
+每个 prompt 上比较平台均值，胜者计 1，平局计 0.5；报告胜率和 prompt 数。
 
-For each prompt, compare platform means; count wins (ties = 0.5). Report the share of prompts won and the number of prompts.
+## 7. VLM 校准
 
-## 7. VLM calibration
+- 模型：`deepseek-flash`（支持图片输入）。
+- 输入：盲化、裁掉水印的图片 + prompt + 原子约束 + 评分规则。
+- 输出：JSON，包含约束检查、G1/G2/G3、模块分、失败标签、置信度、理由。
+- 两个变体：
+  - A：先约束，再整体分。
+  - B：先整体印象，再约束。
+- 关闭 thinking；temperature 0；支持时使用 JSON response format。
+- VLM 是**第二评分通道**，不是第二个人工标注者。
 
-- Model: `deepseek-flash` (vision-capable).
-- Input: blinded, watermark-cropped image + prompt + atomic constraints + rubric.
-- Output: JSON with constraint checks, G1/G2/G3, module scores, failure tags, confidence, rationale.
-- Two variants:
-  - Variant A: constraints first, then holistic scores.
-  - Variant B: holistic impression first, then constraints.
-- `thinking` disabled; temperature 0; JSON response format where supported.
-- The VLM is a **second scoring channel**, not a second human annotator.
+## 8. Bad Case
 
-## 8. Bad Case analysis
+三条线并行：
 
-Three parallel views:
+1. 人工失败标签（pilot 中使用较少）。
+2. 未满足的原子约束。
+3. 低分样本，即使约束全部满足。
 
-1. Human failure tags (sparse in the pilot).
-2. Atomic constraints marked as unmet.
-3. Lowest-scoring images, even when all constraints are met.
+第三条线用于发现“约束都满足，但商业上不可用”的情况，这类案例对规则迭代和培训更有价值。
 
-The third view captures “constraint satisfied but not commercially usable” cases, which are the most useful for training and rule iteration.
+## 9. 选型矩阵
 
-## 9. Selection matrix
+基础权重：
 
-Base weights:
-
-| Factor | Weight |
+| 因素 | 权重 |
 |---|---:|
-| Quality | 50% |
-| Cost | 15% |
-| Latency | 15% |
-| Controllability | 10% |
-| Compliance | 10% |
+| 质量 | 50% |
+| 成本 | 15% |
+| 延迟 | 15% |
+| 可控性 | 10% |
+| 合规 | 10% |
 
-For a specific business, adjust weights and run a sensitivity check (±10%). If the recommendation flips, report it rather than hiding it.
+具体业务可以调整权重，并做 ±10% 敏感性分析；如果推荐结果翻转，应在报告中说明。
 
-## 10. Limitations
+## 10. 限制
 
-See [`limitations.md`](limitations.md). The most important: 12 prompts cannot establish statistical significance; results are directional and version-specific.
+见 [limitations.md](limitations.md)。最重要的一点：12 条 prompt 不足以建立统计显著性，结果是方向性的，且对应特定平台版本。

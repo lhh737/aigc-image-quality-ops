@@ -1,82 +1,76 @@
-# Video QC Extension
+# 视频质检延伸设计
 
-This is a design for extending the image QC framework to **image-to-video / video generation quality inspection**. No video data is included in the pilot.
+这里记录如何把图像质检框架延伸到图生视频 / 视频生成的质量检查。当前 pilot 不包含视频数据。
 
-## 1. Why video QC
+## 1. 为什么单独设计
 
-Video QC is not “image QC × N frames”. It adds temporal failure modes:
+视频不是“把图片质检重复 N 帧”。它会多出几类时序问题：
 
-- subject identity drifts across frames;
-- background and lighting flicker;
-- motion is physically implausible;
-- text on signs/logos changes or melts;
-- shot language and narrative do not match the brief.
+- 主体身份在帧间漂移；
+- 背景和光照闪烁；
+- 运动不符合物理规律；
+- 招牌、字幕、Logo 文字变形或闪烁；
+- 镜头语言和叙事与 brief 不一致。
 
-These map directly to video caption/acceptance roles: 画面内容、镜头语言、叙事逻辑、场景特征.
+这些问题与视频 Caption / 验收岗位关心的画面内容、镜头语言、叙事逻辑、场景特征直接相关。
 
-## 2. Prompt set (suggested)
+## 2. 建议的 prompt 集
 
-| Code | Prompt type | What it tests |
+| 代码 | 类型 | 检查点 |
 |---|---|---|
-| V01 | Product 360° rotation | Product identity, label stability, reflections |
-| V02 | Person walking / turning | Face/body consistency, hands, gait |
-| V03 | Camera pan across a scene | Background consistency, parallax, flicker |
-| V04 | Text motion / sign reveal | Text stability, layout, readability |
-| V05 | Multi-shot mini-story | Shot language, narrative logic, continuity |
-| V06 | Safety red-team clip | Refusal, compliance, over-refusal |
+| V01 | 商品 360° 旋转 | 商品身份、标签稳定性、反光 |
+| V02 | 人物行走/转身 | 脸、身体、手部、步态一致性 |
+| V03 | 镜头横移 | 背景一致性、视差、闪烁 |
+| V04 | 文字/招牌动效 | 文字稳定性、排版、可读性 |
+| V05 | 多镜头小故事 | 镜头语言、叙事逻辑、连续性 |
+| V06 | 安全红队片段 | 拒答、合规、过度拒答 |
 
-## 3. Metrics
+## 3. 指标
 
-| Layer | Metric | How to measure |
+| 层级 | 指标 | 方式 |
 |---|---|---|
-| First frame | Prompt fidelity, visual quality | Same G1–G3 rubric on frame 0 |
-| Temporal | Subject consistency | Human 1–5 + optional face/object embedding similarity |
-| Temporal | Background/lighting consistency | Frame-to-frame difference; flicker detection |
-| Motion | Motion naturalness | Human 1–5; physics/anatomy checklist |
-| Text | Text stability | OCR/character accuracy per sampled frame |
-| Shot | Shot language / narrative | Human 1–5 against a shot list |
-| Product | Duration, resolution, watermark, cost, latency | API/manual metadata |
+| 首帧 | Prompt 保真、视觉质量 | 首帧沿用 G1–G3 |
+| 时序 | 主体一致性 | 人工 1–5；可选人脸/物体 embedding 相似度 |
+| 时序 | 背景/光照一致性 | 帧间差异、闪烁检测 |
+| 运动 | 运动自然度 | 人工 1–5；物理/解剖检查表 |
+| 文字 | 文字稳定性 | 抽帧 OCR / 字符准确率 |
+| 镜头 | 镜头语言/叙事 | 对照 shot list 人工 1–5 |
+| 产品 | 时长、分辨率、水印、成本、延迟 | API/手动元数据 |
 
-## 4. Sampling
+## 4. 抽帧
 
-- Sample frames at 0%, 25%, 50%, 75%, 100% + any detected scene cut.
-- For text clips, sample every 0.5s in the text region.
-- For consistency, compare the first frame to the last frame and to the midpoint.
+- 在 0%、25%、50%、75%、100% 抽帧，加上检测到的镜头切换点。
+- 文字类每 0.5 秒抽一帧，聚焦文字区域。
+- 一致性对比首帧、末帧和中点。
 
-## 5. Annotation protocol
+## 5. 标注流程
 
-- Watch the full clip once without pausing.
-- Then pause at sampled frames and score.
-- Score temporal consistency with the clip playing, not from stills alone.
-- Record the timecode of each failure.
-- Use the same failure taxonomy plus video-specific tags:
-  - 主体漂移
-  - 背景闪烁
-  - 运动不自然
-  - 文字抖动/变形
-  - 镜头语言不符
-  - 叙事断裂
+- 先完整看一遍，不暂停。
+- 再在抽帧点暂停评分。
+- 时序一致性要播放着看，不能只看静帧。
+- 记录每个失败的时间码。
+- 在通用失败标签外增加视频标签：主体漂移、背景闪烁、运动不自然、文字抖动/变形、镜头语言不符、叙事断裂。
 
-## 6. VLM judge
+## 6. VLM
 
-- Feed the VLM a sequence of 4–8 frames, not a single frame.
-- Ask for a timeline of failures with timecodes.
-- Compare VLM labels to human labels; expect lower agreement on motion and narrative than on first-frame quality.
-- Do not use VLM for final acceptance; use it for clip triage.
+- 输入 4–8 帧序列，而不是单帧。
+- 要求输出带时间码的失败时间线。
+- 与人工标签对比；预期运动、叙事维度的一致性低于首帧质量。
+- 不用于最终验收，只用于片段初筛。
 
-## 7. Deliverables
+## 7. 交付物
 
-- 4–6 prompt video set × 2 platforms × 1–2 generations.
-- Frame-level and clip-level scores.
-- A one-page “video QC extension” section in the main report.
-- A short demo: 4 clips, annotated timeline, pass/fail.
+- 4–6 条 prompt × 2 平台 × 1–2 次生成。
+- 帧级和片段级评分。
+- 报告中增加一节视频质检延伸。
+- 一个小 demo：4 个片段、标注时间线、pass/fail。
 
-## 8. Job mapping
+## 8. 岗位对应
 
-| Job requirement | Artifact |
+| 岗位要求 | 对应产物 |
 |---|---|
-| Caption/description acceptance | Shot-by-shot description rubric |
-| 画面内容/镜头语言/叙事逻辑/场景特征 | Four-dimension video rubric |
-| Boundary cases and adjudication | Timecoded failure cases |
-| Training and mentoring | Annotation SOP + anchor clips |
-| Rule iteration | Failure taxonomy + rule change log |
+| Caption / 描述验收 | 逐镜头描述 rubric |
+| 画面内容、镜头语言、叙事逻辑、场景特征 | 四维视频 rubric |
+| 边界案例与仲裁 | 带时间码的失败案例 |
+| 培训与带教 | 标注 SOP + anchor clips |
+| 规则迭代 | 失败分类 + 规则变更记录 |

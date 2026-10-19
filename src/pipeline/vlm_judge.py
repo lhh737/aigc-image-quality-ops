@@ -94,9 +94,12 @@ def cache_key(image_hash: str, prompt_id: str, variant: str) -> str:
 
 
 def load_blind_map() -> dict[str, str]:
-    if not config.BLIND_MAP_CSV.exists():
+    path = config.BLIND_MAP_CSV
+    if not path.exists():
+        path = config.MANIFEST_DIR / "blind_map.csv"
+    if not path.exists():
         return {}
-    df = pd.read_csv(config.BLIND_MAP_CSV, dtype=str).fillna("")
+    df = pd.read_csv(path, dtype=str, encoding="utf-8-sig").fillna("")
     return {row["run_id"]: row["blind_image"] for _, row in df.iterrows() if row.get("blind_image")}
 
 
