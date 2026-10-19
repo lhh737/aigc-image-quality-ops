@@ -89,6 +89,9 @@ The repository includes the data needed for analysis:
 ```bash
 git clone https://github.com/lhh737/aigc-image-quality-ops.git
 cd aigc-image-quality-ops
+
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 python -m src.pipeline.analyze --stage pilot --bootstrap 1000
@@ -99,7 +102,7 @@ Open `dashboard/index.html`, or use the live dashboard.
 
 ### Full reproduction
 
-Full reproduction requires generating images from `prompts/prompts_v1.csv` and setting API keys in `.env`:
+Full reproduction requires generating images from `prompts/prompts_v1.csv` and setting API keys in `.env`. If your images already follow the standard naming, skip `standardize_manual`.
 
 ```bash
 cp .env.example .env

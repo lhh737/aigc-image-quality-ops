@@ -89,6 +89,9 @@ Bootstrap · Friedman · α · Bad Case
 ```bash
 git clone https://github.com/lhh737/aigc-image-quality-ops.git
 cd aigc-image-quality-ops
+
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 python -m src.pipeline.analyze --stage pilot --bootstrap 1000
@@ -99,7 +102,7 @@ python -m src.pipeline.build_dashboard
 
 ### 完整复现
 
-完整流程需要按 `prompts/prompts_v1.csv` 在平台生成图片，并在 `.env` 中配置 API Key：
+完整流程需要按 `prompts/prompts_v1.csv` 在平台生成图片，并在 `.env` 中配置 API Key。如果图片已经按标准命名保存，可以跳过 `standardize_manual`。
 
 ```bash
 cp .env.example .env
