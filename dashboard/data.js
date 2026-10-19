@@ -1,7 +1,7 @@
 window.DASHBOARD_DATA = {
   "meta": {
     "project": "AIGC 多模态数据质量评估与运营复现",
-    "generated_at": "2026-10-19T17:23:00+08:00",
+    "generated_at": "2026-10-19T17:52:47+08:00",
     "n_human": 36,
     "n_vlm": 112,
     "platforms": [
@@ -278,7 +278,7 @@ window.DASHBOARD_DATA = {
   },
   "human_retest": {
     "available": false,
-    "reason": "只有一个标注文件"
+    "reason": "缺少主标注或重测文件"
   },
   "badcases": [
     {

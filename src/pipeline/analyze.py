@@ -24,7 +24,10 @@ DIM_LABELS = {"g1": "指令遵循", "g2": "视觉质量", "g3": "商业可用性
 
 
 def load_human() -> pd.DataFrame:
-    files = sorted(config.ANNOTATION_DIR.glob("human_*.csv"))
+    files = sorted(
+        p for p in config.ANNOTATION_DIR.glob("human_*.csv")
+        if "retest" not in p.name.lower()
+    )
     if not files:
         raise SystemExit(
             f"没有人工标注文件。请把标注工具导出的 CSV 放到 {config.ANNOTATION_DIR}/human_*.csv"
@@ -202,24 +205,55 @@ def agreement(human: pd.DataFrame, vlm: pd.DataFrame) -> dict:
     return out
 
 
-def human_retest(human: pd.DataFrame) -> dict:
-    files = human["_file"].unique().tolist()
-    if len(files) < 2:
-        return {"available": False, "reason": "只有一个标注文件"}
-    first = human[human["_file"] == files[0]].set_index("blind_id")
-    second = human[human["_file"] == files[1]].set_index("blind_id")
+def human_retest() -> dict:
+    main_files = sorted(
+        p for p in config.ANNOTATION_DIR.glob("human_*.csv")
+        if "retest" not in p.name.lower()
+    )
+    retest_files = sorted(
+        p for p in config.ANNOTATION_DIR.glob("human_*retest*.csv")
+    )
+    if not main_files or not retest_files:
+        return {"available": False, "reason": "缺少主标注或重测文件"}
+
+    first = pd.read_csv(main_files[0], dtype=str, encoding="utf-8-sig").fillna("")
+    second = pd.read_csv(retest_files[0], dtype=str, encoding="utf-8-sig").fillna("")
+    first = first.set_index("blind_id")
+    second = second.set_index("blind_id")
     common = first.index.intersection(second.index)
     if len(common) == 0:
         return {"available": False, "reason": "两个文件没有重叠 blind_id"}
-    out = {"available": True, "n": int(len(common)), "by_dim": {}}
+
+    def interval_hours() -> float | None:
+        try:
+            main_end = pd.to_datetime(first["finished_at"], errors="coerce", utc=True).max()
+            retest_start = pd.to_datetime(second["started_at"], errors="coerce", utc=True).min()
+            if pd.isna(main_end) or pd.isna(retest_start):
+                return None
+            return round(float((retest_start - main_end).total_seconds() / 3600), 2)
+        except Exception:
+            return None
+
+    out = {
+        "available": True,
+        "n": int(len(common)),
+        "main_file": main_files[0].name,
+        "retest_file": retest_files[0].name,
+        "interval_hours": interval_hours(),
+        "by_dim": {},
+    }
     for dim in DIMS:
-        a, b = first.loc[common, dim], second.loc[common, dim]
+        a = pd.to_numeric(first.loc[common, dim], errors="coerce")
+        b = pd.to_numeric(second.loc[common, dim], errors="coerce")
         mask = a.notna() & b.notna()
         diff = (a[mask] - b[mask]).abs()
         out["by_dim"][dim] = {
             "exact": round(float((diff == 0).mean()), 3) if mask.any() else None,
             "adjacent": round(float((diff <= 1).mean()), 3) if mask.any() else None,
+            "mae": round(float(diff.mean()), 3) if mask.any() else None,
         }
+    if out["interval_hours"] is not None and out["interval_hours"] < 48:
+        out["note"] = "重测间隔不足 48 小时，属于短期一致性，不等同于 48h test–retest。"
     return out
 
 
@@ -385,7 +419,7 @@ def main() -> int:
         "wilcoxon": holm_wilcoxon(human),
         "stability": stability(human),
         "human_vlm": agreement(human, vlm),
-        "human_retest": human_retest(human),
+        "human_retest": human_retest(),
         "badcases": badcases(human),
         "constraint_failures": constraint_failures(human),
         "low_scores": low_scores(human),

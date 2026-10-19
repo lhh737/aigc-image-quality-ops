@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIGC 图像质检重测</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #fff; --ink: #1f2937; --muted: #6b7280;
+    --line: #e5e7eb; --accent: #2563eb; --accent-soft: #dbeafe;
+    --warn: #b45309; --ok: #047857; --bad: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--ink); }
+  header { position: sticky; top: 0; z-index: 10; background: #111827; color: #fff; padding: 10px 18px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  header .spacer { flex: 1; }
+  header input { padding: 5px 8px; border-radius: 6px; border: 1px solid #374151; background: #1f2937; color: #fff; width: 150px; }
+  header button, .btn { cursor: pointer; border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 6px 10px; border-radius: 6px; }
+  header button { background: #374151; color: #fff; border-color: #4b5563; }
+  header button:hover { background: #4b5563; }
+  main { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 16px; padding: 16px; max-width: 1600px; margin: 0 auto; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .prompt { font-size: 15px; line-height: 1.65; white-space: pre-wrap; }
+  .meta { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .checks { margin: 8px 0 0; padding: 0; list-style: none; }
+  .checks li { margin: 4px 0; }
+  .checks label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+  .row { display: flex; gap: 12px; align-items: center; margin: 10px 0; flex-wrap: wrap; }
+  .row > label:first-child { width: 92px; color: var(--muted); flex: none; }
+  .scale { display: flex; gap: 6px; }
+  .scale button { width: 36px; height: 34px; border-radius: 6px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+  .scale button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+  .tags label { display: flex; gap: 4px; align-items: center; cursor: pointer; }
+  textarea { width: 100%; min-height: 64px; border: 1px solid var(--line); border-radius: 6px; padding: 8px; font: inherit; }
+  .image-wrap { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 300px; }
+  .image-wrap img { max-width: 100%; max-height: 76vh; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.12); background: #fff; }
+  .nav { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .danger { color: var(--bad); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; font-size: 12px; }
+  .progress { height: 6px; background: #e5e7eb; border-radius: 999px; overflow: hidden; margin-top: 6px; }
+  .progress > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  .help { font-size: 12px; color: var(--muted); }
+  .warn { color: var(--warn); font-size: 12px; }
+  details summary { cursor: pointer; color: var(--accent); }
+  @media (max-width: 980px) { main { grid-template-columns: 1fr; } .image-wrap img { max-height: 55vh; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>AIGC 图像质检重测</h1>
+  <label>标注者 ID <input id="rater" placeholder="例如 r1" autocomplete="off"></label>
+  <span class="pill" id="count">0 / 0</span>
+  <div class="spacer"></div>
+  <button id="export">导出 CSV</button>
+  <button id="reset">清空本地记录</button>
+</header>
+
+<div class="progress" style="margin:0;border-radius:0"><div id="bar"></div></div>
+
+<main>
+  <section class="panel">
+    <div class="meta" id="meta"></div>
+    <div class="prompt" id="prompt"></div>
+    <h3 style="font-size:13px;margin:14px 0 4px;color:var(--muted)">原子约束（逐项判断）</h3>
+    <ul class="checks" id="checks"></ul>
+
+    <h3 style="font-size:13px;margin:16px 0 4px;color:var(--muted)">全局评分</h3>
+    <div class="row"><label>G1 指令遵循</label><div class="scale" data-dim="g1"></div></div>
+    <div class="row"><label>G2 视觉质量</label><div class="scale" data-dim="g2"></div></div>
+    <div class="row"><label>G3 商业可用性</label><div class="scale" data-dim="g3"></div></div>
+
+    <h3 style="font-size:13px;margin:16px 0 4px;color:var(--muted)">模块评分（按需）</h3>
+    <div class="row"><label>M1 文字准确率</label><input id="m1" type="range" min="0" max="100" step="10" value="-1" style="flex:1"><span id="m1v" class="help">N/A</span></div>
+    <div class="row"><label>M2 一致性</label><div class="scale" data-dim="m2"></div></div>
+    <div class="row"><label>M3 安全合规</label>
+      <select id="m3"><option value="">N/A</option><option value="pass">pass</option><option value="fail">fail</option></select>
+    </div>
+
+    <h3 style="font-size:13px;margin:16px 0 4px;color:var(--muted)">失败标签</h3>
+    <div class="tags" id="tags"></div>
+
+    <div class="row" style="margin-top:12px"><label>置信度</label>
+      <select id="confidence"><option value="">未选</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select>
+    </div>
+    <textarea id="notes" placeholder="备注：边界情况、返工建议、异常说明"></textarea>
+
+    <details style="margin-top:12px">
+      <summary>评分锚点 / 帮助</summary>
+      <div class="help" style="margin-top:8px">
+        G1 指令遵循：1 完全跑偏；3 部分约束缺失；5 全部约束满足。<br>
+        G2 视觉质量：1 明显畸形/伪影；3 可用但需修；5 无明显瑕疵。<br>
+        G3 商业可用性：1 不可用；3 需明显返工；5 可直接交付。<br>
+        M1：看字符是否正确、排版是否可读；没有文字就留 N/A。<br>
+        M2：组图内主体/风格是否一致；非组图留 N/A。<br>
+        M3：只对安全红队图启用。
+      </div>
+    </details>
+
+    <div class="nav">
+      <button id="prev">上一条</button>
+      <button id="next" class="primary">下一条</button>
+      <button id="skip">跳过</button>
+      <span class="warn" id="warn"></span>
+    </div>
+  </section>
+
+  <section class="panel image-wrap">
+    <div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span class="meta" id="imageMeta"></span>
+      <a id="openImage" class="help" href="#" target="_blank" rel="noopener">打开原图</a>
+    </div>
+    <img id="image" alt="待标注图片">
+  </section>
+</main>
+
+<script src="manifest_retest.js"></script>
+<script>
+(function () {
+  const LS_KEY = "aigc_eval_annotations_retest_v1";
+  const RATER_KEY = "aigc_eval_rater_retest";
+  const items = window.ANNOTATION_ITEMS || [];
+  const state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+  let idx = Number(localStorage.getItem("aigc_eval_idx") || 0);
+  let current = null;
+  let startedAt = null;
+
+  const $ = (id) => document.getElementById(id);
+  const rater = $("rater");
+  rater.value = localStorage.getItem(RATER_KEY) || "";
+  rater.addEventListener("change", () => localStorage.setItem(RATER_KEY, rater.value.trim()));
+
+  const tags = ["指令遗漏","属性错误","空间错误","文字乱码","手部畸形","风格漂移","过度美化","安全违规","水印/分辨率","其他"];
+  const tagBox = $("tags");
+  tags.forEach(t => {
+    const label = document.createElement("label");
+    label.innerHTML = `<input type="checkbox" value="${t}"> ${t}`;
+    tagBox.appendChild(label);
+  });
+
+  const dims = { g1: [1,2,3,4,5], g2: [1,2,3,4,5], g3: [1,2,3,4,5], m2: [1,2,3,4,5] };
+  document.querySelectorAll(".scale").forEach(box => {
+    const dim = box.dataset.dim;
+    (dims[dim] || [1,2,3,4,5]).forEach(v => {
+      const b = document.createElement("button");
+      b.textContent = v; b.dataset.value = v; b.type = "button";
+      b.addEventListener("click", () => setDim(dim, v));
+      box.appendChild(b);
+    });
+  });
+
+  const m1 = $("m1"), m1v = $("m1v");
+  m1.addEventListener("input", () => { m1v.textContent = m1.value < 0 ? "N/A" : m1.value + "%"; });
+
+  function blankRecord() {
+    return { constraint_checks: {}, g1: null, g2: null, g3: null, m1_text: null, m2_consistency: null, m3_safety: "", failure_tags: [], confidence: "", notes: "", started_at: new Date().toISOString(), finished_at: "" };
+  }
+
+  function ensureRecord(bid) {
+    if (!state[bid]) state[bid] = blankRecord();
+    return state[bid];
+  }
+
+  function setDim(dim, v) {
+    if (!current) return;
+    const rec = ensureRecord(current.blind_id);
+    rec[dim] = v;
+    document.querySelectorAll(`.scale[data-dim="${dim}"] button`).forEach(b => b.classList.toggle("active", Number(b.dataset.value) === Number(v)));
+    save();
+  }
+
+  function renderScale(dim, value) {
+    document.querySelectorAll(`.scale[data-dim="${dim}"] button`).forEach(b => b.classList.toggle("active", Number(b.dataset.value) === Number(value)));
+  }
+
+  function save() {
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    localStorage.setItem("aigc_eval_idx", String(idx));
+  }
+
+  function render() {
+    if (!items.length) {
+      $("prompt").textContent = "没有找到 manifest_retest.js。先运行：python -m src.pipeline.make_retest_manifest";
+      return;
+    }
+    idx = Math.max(0, Math.min(idx, items.length - 1));
+    current = items[idx];
+    const rec = ensureRecord(current.blind_id);
+    if (!rec.started_at) rec.started_at = new Date().toISOString();
+    $("meta").innerHTML = `<span class="pill">${current.prompt_id}</span> ${current.category} · ${current.aspect_ratio} · 第 ${idx+1} / ${items.length} 条`;
+    $("prompt").textContent = current.prompt;
+    $("checks").innerHTML = "";
+    current.checks.forEach((c, i) => {
+      const li = document.createElement("li");
+      const checked = rec.constraint_checks[c] === 1 ? "checked" : "";
+      li.innerHTML = `<label><input type="checkbox" data-check="${i}" ${checked}> <span>${c}</span></label>`;
+      li.querySelector("input").addEventListener("change", (e) => {
+        rec.constraint_checks[c] = e.target.checked ? 1 : 0;
+        save();
+      });
+      $("checks").appendChild(li);
+    });
+    ["g1","g2","g3","m2"].forEach(d => renderScale(d, rec[d]));
+    m1.value = rec.m1_text === null || rec.m1_text === undefined ? -1 : rec.m1_text;
+    m1v.textContent = m1.value < 0 ? "N/A" : m1.value + "%";
+    $("m3").value = rec.m3_safety || "";
+    $("confidence").value = rec.confidence || "";
+    $("notes").value = rec.notes || "";
+    tagBox.querySelectorAll("input").forEach(cb => { cb.checked = (rec.failure_tags || []).includes(cb.value); });
+    const img = $("image");
+    img.src = current.image;
+    $("openImage").href = current.image;
+    $("imageMeta").textContent = `${current.blind_id}`;
+    const done = Object.keys(state).filter(k => state[k].g1 && state[k].g2 && state[k].g3).length;
+    $("count").textContent = `${done} / ${items.length}`;
+    $("bar").style.width = `${(done / items.length) * 100}%`;
+    $("warn").textContent = "";
+    save();
+  }
+
+  function commitCurrent() {
+    if (!current) return false;
+    const rec = ensureRecord(current.blind_id);
+    rec.m1_text = Number(m1.value) < 0 ? null : Number(m1.value);
+    rec.m3_safety = $("m3").value;
+    rec.confidence = $("confidence").value;
+    rec.notes = $("notes").value.trim();
+    rec.failure_tags = Array.from(tagBox.querySelectorAll("input:checked")).map(cb => cb.value);
+    rec.finished_at = new Date().toISOString();
+    save();
+    return true;
+  }
+
+  $("next").addEventListener("click", () => {
+    if (!commitCurrent()) return;
+    const rec = state[current.blind_id];
+    if (!rec.g1 || !rec.g2 || !rec.g3) { $("warn").textContent = "G1/G2/G3 还没打全"; return; }
+    idx++; save(); render();
+  });
+  $("prev").addEventListener("click", () => { commitCurrent(); idx--; save(); render(); });
+  $("skip").addEventListener("click", () => { idx++; save(); render(); });
+
+  $("reset").addEventListener("click", () => {
+    if (confirm("确定清空本地所有标注记录？此操作不可恢复。")) {
+      localStorage.removeItem(LS_KEY); location.reload();
+    }
+  });
+
+  $("export").addEventListener("click", () => {
+    commitCurrent();
+    const raterId = (rater.value || "r1").trim();
+    const rows = [["blind_id","prompt_id","rater_id","constraint_checks","g1","g2","g3","m1_text","m2_consistency","m3_safety","failure_tags","confidence","notes","started_at","finished_at"]];
+    items.forEach(it => {
+      const rec = state[it.blind_id];
+      if (!rec || (!rec.g1 && !rec.g2 && !rec.g3)) return;
+      rows.push([
+        it.blind_id, it.prompt_id, raterId,
+        JSON.stringify(rec.constraint_checks || {}),
+        rec.g1 ?? "", rec.g2 ?? "", rec.g3 ?? "",
+        rec.m1_text ?? "", rec.m2_consistency ?? "", rec.m3_safety || "",
+        (rec.failure_tags || []).join(";"), rec.confidence || "", rec.notes || "",
+        rec.started_at || "", rec.finished_at || ""
+      ]);
+    });
+    const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const csv = rows.map(r => r.map(esc).join(",")).join("\r\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `human_${raterId}_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, textarea, select")) return;
+    if (e.key === "ArrowRight") { e.preventDefault(); $("next").click(); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); $("prev").click(); }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

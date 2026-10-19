@@ -49,18 +49,27 @@ data/annotations/human_r1.csv
 
 Do not edit the CSV by hand unless you document the change.
 
-## 6. 48-hour retest
+## 6. 重测（48h 或短期一致性）
 
-- Wait at least 48 hours.
-- Re-open the tool.
-- Re-score about 30% of images (11 for the 36-image pilot).
-- Export as:
+严格口径是至少间隔 48 小时。也可以先做一次短期重测，但报告里要写清楚间隔；`analyze.py` 会记录 `interval_hours`，并在不足 48 小时时标注说明。
+
+1. 生成分层重测子集：
+
+```bash
+python -m src.pipeline.make_retest_manifest
+```
+
+2. 打开 `tools/annotation/index_retest.html`（不是 `index.html`）。
+3. rater ID 用 `r1_retest`。
+4. 标 11 张（36 张的 30%）。
+5. 导出为：
 
 ```text
 data/annotations/human_r1_retest.csv
 ```
 
-This measures intra-rater reliability. Do not look at the first-pass scores before retesting.
+6. 不要先看 `human_r1.csv` 或第一轮的分数；重测工具使用独立的 localStorage，不会显示第一轮评分。
+7. 分析时，`human_retest` 会单独报告完全一致、±1 和 MAE，并把重测文件排除在主榜之外。
 
 ## 7. Adjudication
 
